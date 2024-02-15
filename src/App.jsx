@@ -1,26 +1,32 @@
 import axios from "axios";
 import { DataGrid } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
-import { Dialog, DialogContent, DialogTitle } from "@mui/material";
+import DepthDialog from "./DepthDialog";
 
 function App() {
   const [open, setOpen] = useState(false);
-  const [modalData, setModalData] = useState({});
+  const [modalData, setModalData] = useState([]);
   const [pairs, setPairs] = useState([]);
   const [summary, setSummary] = useState([]);
 
-  const handleClickOpen = () => {
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleOpen = () => {
     setOpen(true);
   };
 
   const handleRowClick = (params) => {
     setModalData(params.row);
-    handleClickOpen();
+    handleOpen();
   };
 
-  const handleClose = () => {
-    setOpen(false);
-  };
+    const countSpread = (bid, ask) => {
+      const A = parseFloat(ask);
+      const B = parseFloat(bid);
+      return ((A - B) / (0.5 * (A + B))) * 100;
+    };
 
   const getPairs = async () => {
     await axios
@@ -45,6 +51,7 @@ function App() {
         console.log(error);
       });
   };
+
   useEffect(() => {
     getPairs();
     getSummary();
@@ -64,19 +71,16 @@ function App() {
     {
       field: "highestBid",
       headerName: "Highest Bid",
-      type: "number",
       width: 110,
     },
     {
       field: "lowestAsk",
-      headerName: "Lowest Ask",
-      type: "number",
       width: 110,
     },
     {
       field: "spread",
       headerName: "Spread [%]",
-      width: 110,
+      width: 250,
     },
     // {
     //   field: "rag",
@@ -105,20 +109,28 @@ function App() {
     },
   ];
 
-  const countSpread = (bid, ask) => {
-    const A = parseFloat(ask);
-    const B = parseFloat(bid);
-    return (((A - B) / (0.5 * (A + B))).toFixed(3) * 100).toFixed(2);
-  };
+
+const combinedData = pairs.map((pair) => {
+  const matchingSummary = summary.find(
+    (item) => item.trading_pairs === pair.base + "-" + pair.target
+  );
+  return { ...pair, ...matchingSummary };
+});
+
+  // console.log("combinedData", combinedData);
+
+
 
   const rows =
-    summary.length !== 0 &&
-    summary.map((element, index) => ({
+    combinedData.length !== 0 &&
+    combinedData.map((element, index) => ({
       id: index,
-      name: element.trading_pairs,
-      highestBid: element.highest_bid,
-      lowestAsk: element.lowest_ask,
-      spread: countSpread(element.highest_bid, element.lowest_ask) + "%",
+      name: element.base + "-" + element.target,
+      highestBid: element.highest_bid ? element.highest_bid : "-",
+      lowestAsk: element.lowest_ask ? element.lowest_ask : "-",
+      spread: isNaN(countSpread(element.highest_bid, element.lowest_ask))
+        ? "-"
+        : countSpread(element.highest_bid, element.lowest_ask),
     }));
 
   if (pairs.length === 0 || summary.length === 0) {
@@ -133,15 +145,11 @@ function App() {
         rowsPerlowestAskOptions={[5]}
         onRowClick={handleRowClick}
       />
-      <Dialog open={open} onClose={handleClose}>
-        <DialogTitle>Dialog</DialogTitle>
-        <DialogContent>
-          <p>{modalData.name}</p>
-          <p>{modalData.highestBid}</p>
-          <p>{modalData.lowestAsk}</p>
-          <p>{modalData.spread}</p>
-        </DialogContent>
-      </Dialog>
+      <DepthDialog
+        open={open}
+        handleClose={handleClose}
+        modalData={modalData}
+      />
     </>
   );
 }
