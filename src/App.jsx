@@ -2,12 +2,25 @@ import axios from "axios";
 import { DataGrid } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
 import DepthDialog from "./DepthDialog";
+import { TextField } from "@mui/material";
 
 function App() {
   const [open, setOpen] = useState(false);
   const [modalData, setModalData] = useState([]);
   const [pairs, setPairs] = useState([]);
   const [summary, setSummary] = useState([]);
+  const [filterValue, setFilterValue] = useState("");
+
+  let filterModel = {
+    items: [
+      { field: "name", operator: "contains", value: filterValue },
+    ],
+  };
+
+  useEffect(() => {
+    console.log("filter", filterValue);
+    console.log("filterModel", filterModel);
+  }, [filterValue]);
 
   const handleClose = () => {
     setOpen(false);
@@ -22,11 +35,11 @@ function App() {
     handleOpen();
   };
 
-    const countSpread = (bid, ask) => {
-      const A = parseFloat(ask);
-      const B = parseFloat(bid);
-      return ((A - B) / (0.5 * (A + B))) * 100;
-    };
+  const countSpread = (bid, ask) => {
+    const A = parseFloat(ask);
+    const B = parseFloat(bid);
+    return ((A - B) / (0.5 * (A + B))) * 100;
+  };
 
   const getPairs = async () => {
     await axios
@@ -82,11 +95,6 @@ function App() {
       headerName: "Spread [%]",
       width: 250,
     },
-    // {
-    //   field: "rag",
-    //   headerName: "RAG",
-    //   width: 80,
-    // },
     {
       field: "rag",
       headerName: "RAG",
@@ -109,17 +117,14 @@ function App() {
     },
   ];
 
-
-const combinedData = pairs.map((pair) => {
-  const matchingSummary = summary.find(
-    (item) => item.trading_pairs === pair.base + "-" + pair.target
-  );
-  return { ...pair, ...matchingSummary };
-});
+  const combinedData = pairs.map((pair) => {
+    const matchingSummary = summary.find(
+      (item) => item.trading_pairs === pair.base + "-" + pair.target
+    );
+    return { ...pair, ...matchingSummary };
+  });
 
   // console.log("combinedData", combinedData);
-
-
 
   const rows =
     combinedData.length !== 0 &&
@@ -138,12 +143,25 @@ const combinedData = pairs.map((pair) => {
   }
   return (
     <>
+      <h1>Ranking Rynków</h1>
+      <TextField
+        id="search"
+        label="Szukaj"
+        variant="outlined"
+        onChange={(e) => {
+          setFilterValue(e.target.value);
+        }}
+      />
       <DataGrid
         rows={rows}
         columns={columns}
-        plowestAskSize={5}
-        rowsPerlowestAskOptions={[5]}
+        pageSize={5}
+        rowsPerPageOptions={[5]}
         onRowClick={handleRowClick}
+        filterModel={filterValue !=="" ? filterModel : undefined}
+        onFilterModelChange={(model) => {
+          console.log("model", model);
+        }}
       />
       <DepthDialog
         open={open}

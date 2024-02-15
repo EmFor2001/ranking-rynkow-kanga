@@ -20,45 +20,7 @@ const DepthDialog = ({ open, handleClose, modalData }) => {
         });
   }, [modalData.name]);
 
-
-  // console.log("depth - state", depth);
-  // console.log(
-  //   "depth - asks - max price",
-  //   depth.asks &&
-  //     depth.asks.length > 0 &&
-  //     depth.asks.reduce(
-  //       (acc, curr) => Math.max(acc, parseFloat(curr.price)),
-  //       depth.asks[0].price
-  //     )
-  // );
-  // console.log(
-  //   "depth - asks - min price",
-  //   depth.asks &&
-  //     depth.asks.length > 0 &&
-  //     depth.asks.reduce(
-  //       (acc, curr) => Math.min(acc, parseFloat(curr.price)),
-  //       depth.asks[0].price
-  //     )
-  // );
-  // console.log(
-  //   "depth - bids - max price",
-  //   depth.bids &&
-  //     depth.bids.length > 0 &&
-  //     depth.bids.reduce(
-  //       (acc, curr) => Math.max(acc, parseFloat(curr.price)),
-  //       depth.bids[0].price
-  //     )
-  // );
-  // console.log(
-  //   "depth - bids - min price",
-  //   depth.bids &&
-  //     depth.bids.length > 0 &&
-  //     depth.bids.reduce(
-  //       (acc, curr) => Math.min(acc, parseFloat(curr.price)),
-  //       depth.bids[0].price
-  //     )
-  // );
-
+  
   let asksDepth =
     depth.asks &&
     depth.asks.length > 0 &&
