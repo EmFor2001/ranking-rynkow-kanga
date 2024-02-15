@@ -12,15 +12,13 @@ function App() {
   const [filterValue, setFilterValue] = useState("");
 
   let filterModel = {
-    items: [
-      { field: "name", operator: "contains", value: filterValue },
-    ],
+    items: [{ field: "name", operator: "contains", value: filterValue }],
   };
 
-  useEffect(() => {
-    console.log("filter", filterValue);
-    console.log("filterModel", filterModel);
-  }, [filterValue]);
+  // useEffect(() => {
+  //   console.log("filter", filterValue);
+  //   console.log("filterModel", filterModel);
+  // }, [filterValue]);
 
   const handleClose = () => {
     setOpen(false);
@@ -158,10 +156,7 @@ function App() {
         pageSize={5}
         rowsPerPageOptions={[5]}
         onRowClick={handleRowClick}
-        filterModel={filterValue !=="" ? filterModel : undefined}
-        onFilterModelChange={(model) => {
-          console.log("model", model);
-        }}
+        filterModel={filterModel}
       />
       <DepthDialog
         open={open}
