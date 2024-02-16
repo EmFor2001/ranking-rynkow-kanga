@@ -1,3 +1,5 @@
+import { createTheme } from "@mui/material/styles";
+
 export const theme = {
   palette: {
     background: "#fdfaf8",
@@ -7,3 +9,14 @@ export const theme = {
     accent: "#8bdb64",
   }
 };
+
+export const textFieldTheme = createTheme(
+  {
+    palette: {
+      orange: {
+        main: "#E65321",
+      },
+    },
+  },
+  "orangeTheme"
+);

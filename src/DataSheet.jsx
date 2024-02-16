@@ -2,17 +2,17 @@ import axios from "axios";
 import { DataGrid } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
 import DepthDialog from "./DepthDialog";
-import { TextField } from "@mui/material";
+import { TextField, ThemeProvider } from "@mui/material";
 import { LoadingBackDrop } from "./components/loader";
 import styled from "styled-components";
-import { theme } from "./helpers/themes";
+import { textFieldTheme, theme } from "./helpers/themes";
 
 const PageWrapper = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  margin: 20px;
+  padding: 20px;
 `;
 
 const PageTitle = styled.h1`
@@ -26,6 +26,13 @@ const StyledTextField = styled(TextField)`
   width: 300px;
 `;
 
+const StyledDatagrid = styled(DataGrid)`
+  border: 1px solid #e65321;
+
+  // &.MuiEven {
+  //   background-color: #f5baa6;
+  // }
+`;
 
 const DataSheet = () => {
   const [open, setOpen] = useState(false);
@@ -54,14 +61,13 @@ const DataSheet = () => {
   const countSpread = (bid, ask) => {
     const A = parseFloat(ask);
     const B = parseFloat(bid);
-    return (((A - B) / (0.5 * (A + B))) * 100); //.toFixed(2) ruined the DataGrid sorting
+    return ((A - B) / (0.5 * (A + B))) * 100;
   };
 
   const getPairs = async () => {
     await axios
       .get("https://public.kanga.exchange/api/market/pairs")
       .then((response) => {
-        // console.log("pairs - po pobraniu", response.data);
         setPairs(response.data);
       })
       .catch((error) => {
@@ -73,7 +79,6 @@ const DataSheet = () => {
     await axios
       .get("https://public.kanga.exchange/api/market/summary")
       .then((response) => {
-        // console.log("summary - po pobraniu", response.data.summary);
         setSummary(response.data.summary);
       })
       .catch((error) => {
@@ -85,11 +90,6 @@ const DataSheet = () => {
     getPairs();
     getSummary();
   }, []);
-
-  // useEffect(() => {
-  //   console.log("pairs - state", pairs);
-  //   console.log("summary - state", summary);
-  // }, [pairs, summary]);
 
   const columns = [
     {
@@ -112,7 +112,7 @@ const DataSheet = () => {
       width: 150,
 
       renderCell: (params) => {
-        const spread = Math.round(params.value*1000)/1000;
+        const spread = Math.round(params.value * 1000) / 1000;
         return isNaN(spread) ? 0 + "%" : spread + "%";
       },
     },
@@ -127,14 +127,17 @@ const DataSheet = () => {
             height: "30px",
             borderRadius: "50%",
             backgroundColor:
-              parseFloat(params.row.spread) <= 2 && parseFloat(params.row.spread) > 0
+              parseFloat(params.row.spread) <= 2 &&
+              parseFloat(params.row.spread) > 0
                 ? "green"
-                : parseFloat(params.row.spread) > 2 
+                : parseFloat(params.row.spread) > 2
                 ? "gold"
                 : "red",
           }}
         ></div>
       ),
+      sortable: false,
+      filterable: false,
     },
   ];
 
@@ -165,21 +168,31 @@ const DataSheet = () => {
       <PageWrapper>
         <PageTitle>Ranking Rynków</PageTitle>
 
-        <StyledTextField
-          id="search"
-          label="Szukaj rynku"
-          variant="outlined"
-          onChange={(e) => {
-            setFilterValue(e.target.value);
-          }}
-        />
-        <DataGrid
+        <ThemeProvider theme={textFieldTheme}>
+          <StyledTextField
+            id="search"
+            label="Szukaj rynku"
+            variant="outlined"
+            onChange={(e) => {
+              setFilterValue(e.target.value);
+            }}
+            color="orange"
+          />
+        </ThemeProvider>
+        <StyledDatagrid
           rows={rows}
           columns={columns}
           pageSize={5}
           rowsPerPageOptions={[5]}
-          onRowClick={handleRowClick}
+          onRowDoubleClick={handleRowClick}
           filterModel={filterModel}
+          // sx={{ border: "1px solid #E65321" }}
+          initialState={{
+            pagination: { paginationModel: { pageSize: 25, page: 0 } },
+          }}
+          getRowClassName={(params) =>
+            params.indexRelativeToCurrentPage % 2 === 0 ? "Mui-even" : "Mui-odd"
+          }
         />
         <DepthDialog
           open={open}

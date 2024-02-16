@@ -14,7 +14,7 @@ body {
   height: 100%;
   margin: 0;
   min-height: 100%;
-  background-color: #fdfaf8;
+  background-color: #F6F6F6;
 
 }
 
