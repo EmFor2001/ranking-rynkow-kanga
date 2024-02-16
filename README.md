@@ -1,7 +1,7 @@
 # React + Vite
 
 ## Getting Started
-### There is no CORS error fix in this version so it can only be opened with the browser in no security mode
+### !!! There is no CORS error fix in this version so it can only be opened with the browser in no security mode !!!
 
 First, install the dependencies: 
 
